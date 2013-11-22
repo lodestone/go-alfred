@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
-	"path/filepath"
+	// "path/filepath"
 )
 
 var noResultString string
@@ -50,8 +50,8 @@ func (ga *GoAlfred) AddItem(title, subtitle, valid, auto, rtype, arg string,
 	if title == "" {
 		title = noResultString
 	}
-	r := &item{Arg: arg, Type: rtype, Valid: valid, Autocomplete: auto,
-		Title: title, Subtitle: subtitle}
+	r := &item{Arg: arg, Type: rtype, Valid: valid, AutoComplete: auto,
+		Title: title, SubTitle: subtitle}
 	r.alfredIcon = icon
 	ga.results.Results = append(ga.results.Results, r)
 }
