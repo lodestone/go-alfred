@@ -19,7 +19,6 @@ type GoAlfred struct {
 }
 
 type AlfredIcon struct {
-	// XMLName  xml.Name `xml:"icon"`
 	Filename string `xml:",chardata"`
 	Type     string `xml:"type,attr,omitempty"`
 }
