@@ -40,7 +40,7 @@ type items struct {
 
 func NewAlfred() *GoAlfred {
 	ga := new(GoAlfred)
-	ga.AddItem("", "", "", "", "", "", NewIcon("hami.png", "fileicon"))
+	// ga.AddItem("", "", "", "", "", "", NewIcon("hami.png", "fileicon"))
 	return ga
 }
 
@@ -59,12 +59,12 @@ func (ga *GoAlfred) AddItem(title, subtitle, valid, auto, rtype, arg string,
 	ga.results.Results = append(ga.results.Results, r)
 }
 
-func (results *items) XML() []byte {
+func (results *items) XML() (output []byte, err error) {
 	output, err := xml.MarshalIndent(results, "", "  ")
 	if err != nil {
-		output = []byte(fmt.Sprintf("alfred.go error: %v\n", err))
+		output = nil
 	}
-	return output
+	return output, err
 }
 
 func NewIcon(fn, itype string) (ico AlfredIcon) {
@@ -74,7 +74,8 @@ func NewIcon(fn, itype string) (ico AlfredIcon) {
 	// return AlfredIcon{Type: itype}
 }
 
-func (ga *GoAlfred) WriteToAlfred() {
-	output := ga.results.XML()
+func (ga *GoAlfred) WriteToAlfred() error {
+	output, err := ga.results.XML()
 	os.Stdout.Write(output)
+	return err
 }
