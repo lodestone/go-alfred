@@ -1,11 +1,12 @@
 package Alfred
 
 import (
-	"fmt"
+	// "fmt"
 	"testing"
 )
 
 func TestSanity(t *testing.T) {
-	ga = Alfred.NewAlfred()
+	ga := NewAlfred()
 	ga.SetNoResultTxt("Test Number 1!")
+	ga.WriteToAlfred()
 }

@@ -16,20 +16,21 @@ type GoAlfred struct {
 	bundleDir string
 }
 
-type alfredIcon struct {
+type AlfredIcon struct {
+	// XMLName  xml.Name `xml:"icon"`
+	Filename string `xml:",chardata"`
 	Type     string `xml:"type,attr,omitempty"`
-	Filename string `xml:"ico"`
 }
 
 type item struct {
-	XMLName      xml.Name `xml:"item"`
-	Arg          string   `xml:"arg,attr"`
-	Type         string   `xml:"type,attr"`
-	Valid        string   `xml:"valid,attr"`
-	AutoComplete string   `xml:"autocomplete,attr"`
-	Title        string   `xml:"tittle"`
-	SubTitle     string   `xml:"subtitle"`
-	alfredIcon
+	XMLName      xml.Name   `xml:"item"`
+	Arg          string     `xml:"arg,attr"`
+	Type         string     `xml:"type,attr,omitempty"`
+	Valid        string     `xml:"valid,attr,omitempty"`
+	AutoComplete string     `xml:"autocomplete,attr,omitempty"`
+	Title        string     `xml:"tittle"`
+	SubTitle     string     `xml:"subtitle"`
+	Icon         AlfredIcon `xml:"icon"`
 }
 
 type items struct {
@@ -38,7 +39,9 @@ type items struct {
 }
 
 func NewAlfred() *GoAlfred {
-	return new(GoAlfred)
+	ga := new(GoAlfred)
+	ga.AddItem("", "", "", "", "", "", NewIcon("hami.png", "fileicon"))
+	return ga
 }
 
 func (ga *GoAlfred) SetNoResultTxt(title string) {
@@ -46,13 +49,13 @@ func (ga *GoAlfred) SetNoResultTxt(title string) {
 }
 
 func (ga *GoAlfred) AddItem(title, subtitle, valid, auto, rtype, arg string,
-	icon alfredIcon) {
+	icon AlfredIcon) {
 	if title == "" {
 		title = noResultString
 	}
-	r := &item{Arg: arg, Type: rtype, Valid: valid, AutoComplete: auto,
+	r := item{Arg: arg, Type: rtype, Valid: valid, AutoComplete: auto,
 		Title: title, SubTitle: subtitle}
-	r.alfredIcon = icon
+	r.Icon = icon
 	ga.results.Results = append(ga.results.Results, r)
 }
 
@@ -64,11 +67,14 @@ func (results *items) XML() []byte {
 	return output
 }
 
-func NewIcon(fn, itype string) (ico *alfredIcon) {
-	return &alfredIcon{Filename: fn, Type: itype}
+func NewIcon(fn, itype string) (ico AlfredIcon) {
+	// name := xml.Name{Local: "type", Space: "icon"}
+	// tv := xml.Attr{Name: name, Value: itype}
+	return AlfredIcon{Filename: fn, Type: "icontype"}
+	// return AlfredIcon{Type: itype}
 }
 
-func WriteToAlfred(results *items) {
-	output := results.XML()
+func (ga *GoAlfred) WriteToAlfred() {
+	output := ga.results.XML()
 	os.Stdout.Write(output)
 }
