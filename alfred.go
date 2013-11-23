@@ -3,6 +3,8 @@ package Alfred
 import (
     "encoding/xml"
     "fmt"
+    "github.com/mkrautz/plist"
+    "io/ioutil"
     "log"
     "os"
     "path"
@@ -14,8 +16,9 @@ var errorTitle string = "Error in Generating Results."
 type GoAlfred struct {
     bundleID  string
     results   items
-    dataDir   string
-    bundleDir string
+    DataDir   string
+    BundleDir string
+    CacheDir  string
     id        string
 }
 
@@ -51,18 +54,44 @@ func (ga *GoAlfred) init(id string) {
     ga.id = id
     // Get bundleid
     pwd, err := os.Getwd()
+    homedir := os.Getenv("HOME")
     if err != nil {
         log.Fatalf("go-alfred: Can't initiate: %v", err)
     }
-    plistfn := path.Join(pwd, "info.plist")
+
+    ga.BundleDir = pwd
+    plistfn := path.Join(ga.BundleDir, "info.plist")
     _, err = os.Stat(plistfn)
     if err != nil {
         log.Printf("Can't locate info.plist: %v\n", plistfn)
     }
+
+    ga.bundleID = ga.getBundleID(plistfn)
+    ga.CacheDir = path.Join(homedir,
+        "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data"+
+            ga.bundleID)
+    ga.DataDir = path.Join(homedir,
+        "Library/Application Support/Alfred 2/Workflow Data"+
+            ga.bundleID)
 }
 
-func (ga *GoAlfred) SetNoResultTxt(title string) {
-    noResultString = title
+func (ga *GoAlfred) getBundleID(plistfn string) string {
+    buf, err := ioutil.ReadFile(plistfn)
+    if err != nil {
+        log.Fatalf("%v", err)
+    }
+    var properties map[string]interface{}
+    err = plist.Unmarshal(buf, &properties)
+    if err != nil {
+        log.Fatalf("%v", err)
+    }
+
+    v, ok := properties["bundleid"]
+    if !ok {
+        log.Fatalf("%v doen't contain a 'bundleid' key.", plistfn)
+    }
+
+    return (v.(string))
 }
 
 func (ga *GoAlfred) XML() (output []byte, err error) {
@@ -70,13 +99,20 @@ func (ga *GoAlfred) XML() (output []byte, err error) {
     if err != nil {
         output = nil
     }
-    return output, nil
+    return output, err
 }
 
 func (ga *GoAlfred) WriteToAlfred() {
-    output, err := ga.results.toXML()
+    output, err := ga.XML()
     if err != nil {
-        output = []byte(fmt.Sprintf("%v", err))
+        ga.MakeError(err)
+        output, err = ga.XML()
+        if err != nil {
+            st := fmt.Sprintf("Error in generating Alfred output: %v",
+                err.Error())
+            os.Stdout.Write([]byte(st))
+            log.Fatal(st)
+        }
     }
     os.Stdout.Write(output)
 }
