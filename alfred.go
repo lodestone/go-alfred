@@ -75,6 +75,7 @@ func (ga *GoAlfred) init(id string) {
 	if err != nil {
 		fmt.Println("It's working", plistfn)
 	}
+
 func (ga *GoAlfred) AddItem(title, subtitle, valid, auto, rtype, arg string,
 	icon AlfredIcon) {
 	if title == "" {
