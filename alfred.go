@@ -24,6 +24,7 @@ type AlfredIcon struct {
 
 type item struct {
 	XMLName      xml.Name   `xml:"item"`
+	Uid          string     `xml:"uid,attr"`
 	Arg          string     `xml:"arg,attr"`
 	Type         string     `xml:"type,attr,omitempty"`
 	Valid        string     `xml:"valid,attr,omitempty"`
