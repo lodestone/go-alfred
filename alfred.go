@@ -43,12 +43,24 @@ type items struct {
 func NewAlfred(id string) *GoAlfred {
 	ga := new(GoAlfred)
 	ga.init(id)
-	ga.AddItem("", "", "", "", "", "", NewIcon("hami.png", "fileicon"))
 	return ga
 }
 
 func (ga *GoAlfred) SetNoResultTxt(title string) {
 	noResultString = title
+}
+
+func (ga *GoAlfred) XML() (output []byte, err error) {
+	output, err = ga.results.toXML()
+	if err != nil {
+		output = nil
+	}
+	return output, nil
+}
+
+func (ga *GoAlfred) WriteToAlfred() {
+	output := ga.results.toXML()
+	os.Stdout.Write(output)
 }
 
 func (ga *GoAlfred) init(id string) {
@@ -63,8 +75,6 @@ func (ga *GoAlfred) init(id string) {
 	if err != nil {
 		fmt.Println("It's working", plistfn)
 	}
-}
-
 func (ga *GoAlfred) AddItem(title, subtitle, valid, auto, rtype, arg string,
 	icon AlfredIcon) {
 	if title == "" {
@@ -76,22 +86,14 @@ func (ga *GoAlfred) AddItem(title, subtitle, valid, auto, rtype, arg string,
 	ga.results.Results = append(ga.results.Results, r)
 }
 
-func (results *items) XML() []byte {
-	output, err := xml.MarshalIndent(results, "", "  ")
+func (results *items) toXML() (output []byte, err error) {
+	output, err = xml.MarshalIndent(results, "", "  ")
 	if err != nil {
-		output = []byte(fmt.Sprintf("alfred.go error: %v\n", err))
+		output = nil
 	}
-	return output
+	return output, err
 }
 
 func NewIcon(fn, itype string) (ico AlfredIcon) {
-	// name := xml.Name{Local: "type", Space: "icon"}
-	// tv := xml.Attr{Name: name, Value: itype}
 	return AlfredIcon{Filename: fn, Type: "icontype"}
-	// return AlfredIcon{Type: itype}
-}
-
-func (ga *GoAlfred) WriteToAlfred() {
-	output := ga.results.XML()
-	os.Stdout.Write(output)
 }
