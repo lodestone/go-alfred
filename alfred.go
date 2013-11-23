@@ -3,8 +3,9 @@ package Alfred
 import (
 	"encoding/xml"
 	"fmt"
+	"log"
 	"os"
-	// "path/filepath"
+	"path"
 )
 
 var noResultString string
@@ -14,6 +15,7 @@ type GoAlfred struct {
 	results   items
 	dataDir   string
 	bundleDir string
+	id        string
 }
 
 type AlfredIcon struct {
@@ -39,9 +41,10 @@ type items struct {
 	Results []item
 }
 
-func NewAlfred() *GoAlfred {
+func NewAlfred(id string) *GoAlfred {
 	ga := new(GoAlfred)
-	// ga.AddItem("", "", "", "", "", "", NewIcon("hami.png", "fileicon"))
+	ga.init(id)
+	ga.AddItem("", "", "", "", "", "", NewIcon("hami.png", "fileicon"))
 	return ga
 }
 
@@ -60,12 +63,12 @@ func (ga *GoAlfred) AddItem(title, subtitle, valid, auto, rtype, arg string,
 	ga.results.Results = append(ga.results.Results, r)
 }
 
-func (results *items) XML() (output []byte, err error) {
+func (results *items) XML() []byte {
 	output, err := xml.MarshalIndent(results, "", "  ")
 	if err != nil {
-		output = nil
+		output = []byte(fmt.Sprintf("alfred.go error: %v\n", err))
 	}
-	return output, err
+	return output
 }
 
 func NewIcon(fn, itype string) (ico AlfredIcon) {
@@ -75,8 +78,7 @@ func NewIcon(fn, itype string) (ico AlfredIcon) {
 	// return AlfredIcon{Type: itype}
 }
 
-func (ga *GoAlfred) WriteToAlfred() error {
-	output, err := ga.results.XML()
+func (ga *GoAlfred) WriteToAlfred() {
+	output := ga.results.XML()
 	os.Stdout.Write(output)
-	return err
 }
