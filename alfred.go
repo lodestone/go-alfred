@@ -8,7 +8,7 @@ import (
 	"path"
 )
 
-var noResultString string
+var noResultString string = "No Result Were Found."
 
 type GoAlfred struct {
 	bundleID  string
@@ -25,7 +25,7 @@ type AlfredIcon struct {
 
 type item struct {
 	XMLName      xml.Name   `xml:"item"`
-	Uid          string     `xml:"uid,attr"`
+	Uid          string     `xml:"uid,attr,omitempty"`
 	Arg          string     `xml:"arg,attr"`
 	Type         string     `xml:"type,attr,omitempty"`
 	Valid        string     `xml:"valid,attr,omitempty"`
@@ -46,6 +46,20 @@ func NewAlfred(id string) *GoAlfred {
 	return ga
 }
 
+func (ga *GoAlfred) init(id string) {
+	ga.id = id
+	// Get bundleid
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("go-alfred: Can't initiate: %v", err)
+	}
+	plistfn := path.Join(pwd, "info.plist")
+	_, err = os.Stat(plistfn)
+	if err != nil {
+		log.Printf("Can't locato info.plist: %v\n", plistfn)
+	}
+}
+
 func (ga *GoAlfred) SetNoResultTxt(title string) {
 	noResultString = title
 }
@@ -59,30 +73,26 @@ func (ga *GoAlfred) XML() (output []byte, err error) {
 }
 
 func (ga *GoAlfred) WriteToAlfred() {
-	output := ga.results.toXML()
+	output, err := ga.results.toXML()
+	if err != nil {
+		output = []byte(fmt.Sprintf("%v", err))
+	}
 	os.Stdout.Write(output)
 }
 
-func (ga *GoAlfred) init(id string) {
-	ga.id = id
-	// Get bundleid
-	pwd, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("go-alfred: Can't initiate: %v", err)
-	}
-	plistfn := path.Join(pwd, "info.plist")
-	_, err = os.Stat(plistfn)
-	if err != nil {
-		fmt.Println("It's working", plistfn)
-	}
+func (ga *GoAlfred) AddItem(uid, title, subtitle, valid, auto, rtype,
+	arg string, icon AlfredIcon, check_valid bool) {
 
-func (ga *GoAlfred) AddItem(title, subtitle, valid, auto, rtype, arg string,
-	icon AlfredIcon) {
 	if title == "" {
 		title = noResultString
 	}
-	r := item{Arg: arg, Type: rtype, Valid: valid, AutoComplete: auto,
-		Title: title, SubTitle: subtitle}
+	r := item{Uid: uid, Arg: arg, Type: rtype, Valid: valid,
+		AutoComplete: auto, Title: title, SubTitle: subtitle}
+	if check_valid {
+		// Make sure the item will work in Alfred as autocomplete if
+		// 'auto' parameter is said
+		r.make_valid()
+	}
 	r.Icon = icon
 	ga.results.Results = append(ga.results.Results, r)
 }
@@ -93,6 +103,13 @@ func (results *items) toXML() (output []byte, err error) {
 		output = nil
 	}
 	return output, err
+}
+
+func (i *item) make_valid() {
+	if (i.Valid == "" || i.Valid == "yes") && i.AutoComplete != "" {
+		i.Valid = "no"
+		i.Arg = ""
+	}
 }
 
 func NewIcon(fn, itype string) (ico AlfredIcon) {
