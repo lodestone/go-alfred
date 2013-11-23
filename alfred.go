@@ -51,6 +51,20 @@ func (ga *GoAlfred) SetNoResultTxt(title string) {
 	noResultString = title
 }
 
+func (ga *GoAlfred) init(id string) {
+	ga.id = id
+	// Get bundleid
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("go-alfred: Can't initiate: %v", err)
+	}
+	plistfn := path.Join(pwd, "info.plist")
+	_, err = os.Stat(plistfn)
+	if err != nil {
+		fmt.Println("It's working", plistfn)
+	}
+}
+
 func (ga *GoAlfred) AddItem(title, subtitle, valid, auto, rtype, arg string,
 	icon AlfredIcon) {
 	if title == "" {
