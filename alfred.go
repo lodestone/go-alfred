@@ -3,8 +3,9 @@ package Alfred
 import (
 	"encoding/xml"
 	"fmt"
+	"log"
 	"os"
-	// "path/filepath"
+	"path"
 )
 
 var noResultString string
@@ -14,6 +15,7 @@ type GoAlfred struct {
 	results   items
 	dataDir   string
 	bundleDir string
+	id        string
 }
 
 type AlfredIcon struct {
@@ -38,10 +40,25 @@ type items struct {
 	Results []item
 }
 
-func NewAlfred() *GoAlfred {
+func NewAlfred(id string) *GoAlfred {
 	ga := new(GoAlfred)
+	ga.init(id)
 	ga.AddItem("", "", "", "", "", "", NewIcon("hami.png", "fileicon"))
 	return ga
+}
+
+func (ga *GoAlfred) init(id string) {
+	ga.id = id
+	// Get bundleid
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("go-alfred: Can't initiate: %v", err)
+	}
+	plistfn := path.Join(pwd, "info.plist")
+	_, err = os.Stat(plistfn)
+	if err != nil {
+		fmt.Println("It's working", plistfn)
+	}
 }
 
 func (ga *GoAlfred) SetNoResultTxt(title string) {

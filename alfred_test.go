@@ -6,7 +6,7 @@ import (
 )
 
 func TestSanity(t *testing.T) {
-	ga := NewAlfred()
+	ga := NewAlfred("daftar")
 	ga.SetNoResultTxt("Test Number 1!")
 	ga.WriteToAlfred()
 }
