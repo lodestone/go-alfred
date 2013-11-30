@@ -44,6 +44,10 @@ type items struct {
     Results []item
 }
 
+func (ga GoAlfred) Write(p []byte) (n int, err error) {
+    return ga.WriteToAlfred()
+}
+
 func NewAlfred(id string) *GoAlfred {
     ga := new(GoAlfred)
     ga.init(id)
@@ -68,10 +72,10 @@ func (ga *GoAlfred) init(id string) {
 
     ga.bundleID = ga.getBundleID(plistfn)
     ga.CacheDir = path.Join(homedir,
-        "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data"+
+        "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data",
             ga.bundleID)
     ga.DataDir = path.Join(homedir,
-        "Library/Application Support/Alfred 2/Workflow Data"+
+        "Library/Application Support/Alfred 2/Workflow Data",
             ga.bundleID)
 }
 
@@ -102,8 +106,9 @@ func (ga *GoAlfred) XML() (output []byte, err error) {
     return output, err
 }
 
-func (ga *GoAlfred) WriteToAlfred() {
-    output, err := ga.XML()
+func (ga *GoAlfred) WriteToAlfred() (n int, err error) {
+    var output []byte
+    output, err = ga.XML()
     if err != nil {
         ga.MakeError(err)
         output, err = ga.XML()
@@ -114,7 +119,8 @@ func (ga *GoAlfred) WriteToAlfred() {
             log.Fatal(st)
         }
     }
-    os.Stdout.Write(output)
+    n, err = os.Stdout.Write(output)
+    return n, err
 }
 
 func (ga *GoAlfred) MakeError(err error) {
