@@ -34,7 +34,7 @@ type item struct {
     Type         string     `xml:"type,attr,omitempty"`
     Valid        string     `xml:"valid,attr,omitempty"`
     AutoComplete string     `xml:"autocomplete,attr,omitempty"`
-    Title        string     `xml:"tittle"`
+    Title        string     `xml:"title"`
     SubTitle     string     `xml:"subtitle"`
     Icon         AlfredIcon `xml:"icon"`
 }
@@ -73,10 +73,10 @@ func (ga *GoAlfred) init(id string) {
     ga.bundleID = ga.getBundleID(plistfn)
     ga.CacheDir = path.Join(homedir,
         "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data",
-            ga.bundleID)
+        ga.bundleID)
     ga.DataDir = path.Join(homedir,
         "Library/Application Support/Alfred 2/Workflow Data",
-            ga.bundleID)
+        ga.bundleID)
 }
 
 func (ga *GoAlfred) getBundleID(plistfn string) string {
