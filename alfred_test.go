@@ -101,8 +101,8 @@ func TestAddItem(t *testing.T) {
     }
     for _, test := range tests {
         args := make([]string, 7)
-        for i := 0; i < 7; i++ {
-            args[i] = test.itemargs[i]
+        for i, a := range test.itemargs {
+            args[i] = a
         }
         ga.AddItem(args[0], args[1], args[2], args[3], args[4], args[5],
             args[6], icon, test.make_valid)
