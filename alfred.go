@@ -12,14 +12,16 @@ import (
 
 var noResultString string = "No Result Were Found."
 var errorTitle string = "Error in Generating Results."
+var settingsFN string = "settings.plist"
 
 type GoAlfred struct {
-    bundleID  string
-    results   items
-    DataDir   string
-    BundleDir string
-    CacheDir  string
-    id        string
+    bundleID   string
+    results    items
+    DataDir    string
+    BundleDir  string
+    CacheDir   string
+    SettingsFN string
+    id         string
 }
 
 type AlfredIcon struct {
@@ -77,6 +79,7 @@ func (ga *GoAlfred) init(id string) {
     ga.DataDir = path.Join(homedir,
         "Library/Application Support/Alfred 2/Workflow Data",
         ga.bundleID)
+    ga.SettingsFN = path.Join(ga.DataDir, settingsFN)
 }
 
 func (ga *GoAlfred) getBundleID(plistfn string) string {

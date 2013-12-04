@@ -26,6 +26,23 @@ func TestBasics(t *testing.T) {
     }
 }
 
+func TestSettings(t *testing.T) {
+    ga := NewAlfred("TestSettings")
+
+    err := ga.Set("AlfredApp", "yes")
+    if err != nil {
+        t.Logf("Couldn't write to settings file\n%v\n", err)
+    }
+
+    r, err := ga.Get("AlfredApp")
+    if err != nil {
+        t.Logf("Couldn't read 'AlfredApp' key from settings file\n%v\n", err)
+    }
+    if r != "yes" {
+        ferror(t, "yes", r)
+    }
+}
+
 func TestAddItem(t *testing.T) {
     var ga *GoAlfred
     icon := NewIcon("pin.png", "icontype")
@@ -40,7 +57,7 @@ func TestAddItem(t *testing.T) {
             make_valid: false,
             expected: `<items>
   <item uid="uiduidadc" arg="deleteme" type="file" valid="yes" autocomplete="yes">
-    <tittle>TestBasic Title</tittle>
+    <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
     <icon type="icontype">pin.png</icon>
   </item>
@@ -50,12 +67,12 @@ func TestAddItem(t *testing.T) {
             make_valid: true,
             expected: `<items>
   <item uid="uiduidadc" arg="deleteme" type="file" valid="yes" autocomplete="yes">
-    <tittle>TestBasic Title</tittle>
+    <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
     <icon type="icontype">pin.png</icon>
   </item>
   <item uid="uiduidadc" arg="" type="file" valid="no" autocomplete="yes">
-    <tittle>TestBasic Title</tittle>
+    <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
     <icon type="icontype">pin.png</icon>
   </item>
@@ -65,17 +82,17 @@ func TestAddItem(t *testing.T) {
             make_valid: true,
             expected: `<items>
   <item uid="uiduidadc" arg="deleteme" type="file" valid="yes" autocomplete="yes">
-    <tittle>TestBasic Title</tittle>
+    <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
     <icon type="icontype">pin.png</icon>
   </item>
   <item uid="uiduidadc" arg="" type="file" valid="no" autocomplete="yes">
-    <tittle>TestBasic Title</tittle>
+    <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
     <icon type="icontype">pin.png</icon>
   </item>
   <item arg="" type="file" valid="no" autocomplete="yes">
-    <tittle>No Result Were Found.</tittle>
+    <title>No Result Were Found.</title>
     <subtitle>Adding stuff.</subtitle>
     <icon type="icontype">pin.png</icon>
   </item>
@@ -110,7 +127,7 @@ func TestMakeError(t *testing.T) {
     }
     expected := `<items>
   <item arg="" valid="no" autocomplete="no">
-    <tittle>Error in Generating Results.</tittle>
+    <title>Error in Generating Results.</title>
     <subtitle>Testing Forcing an error result.</subtitle>
     <icon>erroricon.png</icon>
   </item>
