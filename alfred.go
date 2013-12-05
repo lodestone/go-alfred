@@ -102,6 +102,8 @@ func (ga *GoAlfred) getBundleID(plistfn string) string {
 }
 
 func (ga *GoAlfred) XML() (output []byte, err error) {
+    // TODO: cache 'output' so we don't call toXML()/xml.Unmarshal unless
+    // ga.results has changed
     output, err = ga.results.toXML()
     if err != nil {
         output = nil

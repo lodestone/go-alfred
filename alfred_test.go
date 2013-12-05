@@ -53,6 +53,19 @@ func TestSettings(t *testing.T) {
     if s != "password" {
         ferror(t, "password", s)
     }
+
+    // change a setting
+    if err = ga.Set("AlfredApp", "changed"); err != nil {
+        t.Logf("Couldn't re-set a key.\n%v\n", err)
+    }
+    rs, err := ga.Get("AlfredApp")
+    if err != nil {
+        t.Logf("Couldn't read 'AlfredApp' key from settings file.\n%v\n", err)
+    }
+    if rs != "changed" {
+        ferror(t, "changed", rs)
+    }
+
 }
 
 func TestAddItem(t *testing.T) {
