@@ -41,6 +41,18 @@ func TestSettings(t *testing.T) {
     if r != "yes" {
         ferror(t, "yes", r)
     }
+
+    err = ga.Set("username", "password")
+    if err != nil {
+        t.Logf("Couldn't set the second value.\n%v\n", err)
+    }
+    s, err := ga.Get("username")
+    if err != nil {
+        t.Logf("Couldn't read 'username' key from settings file.\n%v\n", err)
+    }
+    if s != "password" {
+        ferror(t, "password", s)
+    }
 }
 
 func TestAddItem(t *testing.T) {
