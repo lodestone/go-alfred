@@ -1,9 +1,10 @@
 package Alfred
 
 import (
+    "bytes"
     "encoding/xml"
     "fmt"
-    "github.com/mkrautz/plist"
+    "howett.net/plist"
     "io/ioutil"
     "log"
     "os"
@@ -100,7 +101,8 @@ func (ga *GoAlfred) getBundleID(plistfn string) string {
         log.Fatalf("%v", err)
     }
     var properties map[string]interface{}
-    err = plist.Unmarshal(buf, &properties)
+    decoder := plist.NewDecoder(bytes.NewReader(buf))
+    err = decoder.Decode(&properties)
     if err != nil {
         log.Fatalf("%v", err)
     }

@@ -3,6 +3,7 @@ package Alfred
 import (
     // "fmt"
     "testing"
+    "time"
 )
 
 func TestBasics(t *testing.T) {
@@ -31,12 +32,12 @@ func TestSettings(t *testing.T) {
 
     err := ga.Set("AlfredApp", "yes")
     if err != nil {
-        t.Logf("Couldn't write to settings file\n%v\n", err)
+        t.Errorf("Couldn't write to settings file\n%v\n", err)
     }
 
     r, err := ga.Get("AlfredApp")
     if err != nil {
-        t.Logf("Couldn't read 'AlfredApp' key from settings file\n%v\n", err)
+        t.Errorf("Couldn't read 'AlfredApp' key from settings file\n%v\n", err)
     }
     if r != "yes" {
         ferror(t, "yes", r)
@@ -44,28 +45,48 @@ func TestSettings(t *testing.T) {
 
     err = ga.Set("username", "password")
     if err != nil {
-        t.Logf("Couldn't set the second value.\n%v\n", err)
+        t.Errorf("Couldn't set the second value.\n%v\n", err)
     }
     s, err := ga.Get("username")
     if err != nil {
-        t.Logf("Couldn't read 'username' key from settings file.\n%v\n", err)
+        t.Errorf("Couldn't read 'username' key from settings file.\n%v\n", err)
     }
     if s != "password" {
         ferror(t, "password", s)
     }
 
+    // set/get date
+    time_ := time.Now()
+    if err = ga.Set("Time1", time_.Format(time.RFC3339Nano)); err != nil {
+        t.Errorf("Couldn't set a time value as string.\n%v\n", err)
+    }
+    time.Sleep(10 * time.Millisecond)
+
+    tr, err := ga.Get("Time1")
+    if err != nil {
+        t.Errorf("Couldn't read 'Time1' key from settings file.\n%v\n", err)
+    }
+
+    mytime, err := time.Parse(time.RFC3339Nano, tr)
+    if err != nil {
+        t.Errorf("Error in parsing the time from file.\n%v\n", err)
+    }
+
+    if !mytime.Equal(time_) {
+        t.Errorf("Read/Set times are not equal:\n%v\n%v\n", mytime, time_)
+    }
+
     // change a setting
     if err = ga.Set("AlfredApp", "changed"); err != nil {
-        t.Logf("Couldn't re-set a key.\n%v\n", err)
+        t.Errorf("Couldn't re-set a key.\n%v\n", err)
     }
     rs, err := ga.Get("AlfredApp")
     if err != nil {
-        t.Logf("Couldn't read 'AlfredApp' key from settings file.\n%v\n", err)
+        t.Errorf("Couldn't read 'AlfredApp' key from settings file.\n%v\n", err)
     }
     if rs != "changed" {
         ferror(t, "changed", rs)
     }
-
 }
 
 func TestAddItem(t *testing.T) {

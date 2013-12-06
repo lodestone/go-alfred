@@ -2,8 +2,9 @@ package Alfred
 
 import (
     // "errors"
+    "bytes"
     "fmt"
-    "github.com/mkrautz/plist"
+    "howett.net/plist"
     "io/ioutil"
     "os"
     "strings"
@@ -19,11 +20,14 @@ func (ga *GoAlfred) Set(key, value string) (err error) {
     }
     // fmt.Println(settings, key, value)
     settings[key] = value
-    b, err := plist.Marshal(settings)
+
+    buf := &bytes.Buffer{}
+    encoder := plist.NewEncoder(buf)
+    err = encoder.Encode(&settings)
     if err != nil {
         return err
     }
-    err = ga.saveSettings(b)
+    err = ga.saveSettings(buf.Bytes())
     if err != nil {
         return err
     }
@@ -57,7 +61,9 @@ func (ga *GoAlfred) loadSettings() (settings map[string]interface{}, err error) 
     } else if err != nil {
         return nil, err
     }
-    err = plist.Unmarshal(buf, &settings)
+
+    decoder := plist.NewDecoder(bytes.NewReader(buf))
+    err = decoder.Decode(&settings)
     if err != nil {
         return nil, err
     }
