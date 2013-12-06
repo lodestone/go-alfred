@@ -53,7 +53,6 @@ func (ga *GoAlfred) loadSettings() (settings map[string]interface{}, err error) 
             return settings, err
         }
         file.WriteString(emptyPlist)
-        // settings["hamid"] = "foo"
         return settings, err
     } else if err != nil {
         return nil, err

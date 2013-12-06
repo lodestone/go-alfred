@@ -10,9 +10,11 @@ import (
     "path"
 )
 
-var noResultString string = "No Result Were Found."
-var errorTitle string = "Error in Generating Results."
-var settingsFN string = "settings.plist"
+var (
+    noResultString string = "No Result Were Found."
+    errorTitle     string = "Error in Generating Results."
+    settingsFN     string = "settings.plist"
+)
 
 type GoAlfred struct {
     bundleID   string
@@ -79,6 +81,16 @@ func (ga *GoAlfred) init(id string) {
     ga.DataDir = path.Join(homedir,
         "Library/Application Support/Alfred 2/Workflow Data",
         ga.bundleID)
+    if _, err = os.Stat(ga.CacheDir); err != nil {
+        if err = os.MkdirAll(ga.CacheDir, 0666); err != nil {
+            log.Fatalf("go-alfred: Can't create cache folder: %v\n", err)
+        }
+    }
+    if _, err = os.Stat(ga.DataDir); err != nil {
+        if err = os.MkdirAll(ga.DataDir, 0666); err != nil {
+            log.Fatalf("go-alfred: Can't create data folder: %v\n", err)
+        }
+    }
     ga.SettingsFN = path.Join(ga.DataDir, settingsFN)
 }
 
