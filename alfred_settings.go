@@ -71,7 +71,7 @@ func (ga *GoAlfred) loadSettings() (settings map[string]interface{}, err error) 
 }
 
 func (ga *GoAlfred) saveSettings(b []byte) (err error) {
-    file, err := os.OpenFile(ga.SettingsFN, os.O_CREATE|os.O_WRONLY, 0666)
+    file, err := os.Create(ga.SettingsFN)
     defer file.Close()
     if err != nil {
         return err
@@ -83,6 +83,4 @@ func (ga *GoAlfred) saveSettings(b []byte) (err error) {
     return
 }
 
-var emptyPlist = `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"></plist>`
+var emptyPlist = `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"></plist>`
