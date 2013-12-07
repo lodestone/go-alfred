@@ -1,25 +1,31 @@
 package Alfred
 
 import (
+    "bytes"
     "encoding/xml"
     "fmt"
-    "github.com/mkrautz/plist"
     "io/ioutil"
     "log"
     "os"
     "path"
+
+    "howett.net/plist"
 )
 
-var noResultString string = "No Result Were Found."
-var errorTitle string = "Error in Generating Results."
+var (
+    noResultString string = "No Result Were Found."
+    errorTitle     string = "Error in Generating Results."
+    settingsFN     string = "settings.plist"
+)
 
 type GoAlfred struct {
-    bundleID  string
-    results   items
-    DataDir   string
-    BundleDir string
-    CacheDir  string
-    id        string
+    bundleID   string
+    results    items
+    DataDir    string
+    BundleDir  string
+    CacheDir   string
+    SettingsFN string
+    id         string
 }
 
 type AlfredIcon struct {
@@ -77,6 +83,17 @@ func (ga *GoAlfred) init(id string) {
     ga.DataDir = path.Join(homedir,
         "Library/Application Support/Alfred 2/Workflow Data",
         ga.bundleID)
+    if _, err = os.Stat(ga.CacheDir); err != nil {
+        if err = os.MkdirAll(ga.CacheDir, 0755); err != nil {
+            log.Fatalf("go-alfred: Can't create cache folder: %v\n", err)
+        }
+    }
+    if _, err = os.Stat(ga.DataDir); err != nil {
+        if err = os.MkdirAll(ga.DataDir, 0755); err != nil {
+            log.Fatalf("go-alfred: Can't create data folder: %v\n", err)
+        }
+    }
+    ga.SettingsFN = path.Join(ga.DataDir, settingsFN)
 }
 
 func (ga *GoAlfred) getBundleID(plistfn string) string {
@@ -85,7 +102,8 @@ func (ga *GoAlfred) getBundleID(plistfn string) string {
         log.Fatalf("%v", err)
     }
     var properties map[string]interface{}
-    err = plist.Unmarshal(buf, &properties)
+    decoder := plist.NewDecoder(bytes.NewReader(buf))
+    err = decoder.Decode(&properties)
     if err != nil {
         log.Fatalf("%v", err)
     }
@@ -99,6 +117,8 @@ func (ga *GoAlfred) getBundleID(plistfn string) string {
 }
 
 func (ga *GoAlfred) XML() (output []byte, err error) {
+    // TODO: cache 'output' so we don't call toXML()/xml.Unmarshal unless
+    // ga.results has changed
     output, err = ga.results.toXML()
     if err != nil {
         output = nil
@@ -120,6 +140,7 @@ func (ga *GoAlfred) WriteToAlfred() (n int, err error) {
         }
     }
     n, err = os.Stdout.Write(output)
+    // fmt.Println(string(output))
     return n, err
 }
 
@@ -148,11 +169,13 @@ func (ga *GoAlfred) AddItem(uid, title, subtitle, valid, auto, rtype,
 }
 
 func (results *items) toXML() (output []byte, err error) {
-    output, err = xml.MarshalIndent(results, "", "  ")
+    output, err = xml.MarshalIndent(results, "", "")
     if err != nil {
         output = nil
     }
-    return output, err
+    s := string(output)
+    s = `<?xml version="1.0"?>` + s
+    return []byte(`<?xml version="1.0"?>` + string(output)), err
 }
 
 func (i *item) make_valid() {

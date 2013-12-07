@@ -3,6 +3,7 @@ package Alfred
 import (
     // "fmt"
     "testing"
+    "time"
 )
 
 func TestBasics(t *testing.T) {
@@ -26,6 +27,68 @@ func TestBasics(t *testing.T) {
     }
 }
 
+func TestSettings(t *testing.T) {
+    ga := NewAlfred("TestSettings")
+
+    err := ga.Set("AlfredApp", "yes")
+    if err != nil {
+        t.Errorf("Couldn't write to settings file\n%v\n", err)
+    }
+
+    r, err := ga.Get("AlfredApp")
+    if err != nil {
+        t.Errorf("Couldn't read 'AlfredApp' key from settings file\n%v\n", err)
+    }
+    if r != "yes" {
+        ferror(t, "yes", r)
+    }
+
+    err = ga.Set("username", "password")
+    if err != nil {
+        t.Errorf("Couldn't set the second value.\n%v\n", err)
+    }
+    s, err := ga.Get("username")
+    if err != nil {
+        t.Errorf("Couldn't read 'username' key from settings file.\n%v\n", err)
+    }
+    if s != "password" {
+        ferror(t, "password", s)
+    }
+
+    // set/get date
+    time_ := time.Now()
+    if err = ga.Set("Time1", time_.Format(time.RFC3339Nano)); err != nil {
+        t.Errorf("Couldn't set a time value as string.\n%v\n", err)
+    }
+    time.Sleep(10 * time.Millisecond)
+
+    tr, err := ga.Get("Time1")
+    if err != nil {
+        t.Errorf("Couldn't read 'Time1' key from settings file.\n%v\n", err)
+    }
+
+    mytime, err := time.Parse(time.RFC3339Nano, tr)
+    if err != nil {
+        t.Errorf("Error in parsing the time from file.\n%v\n", err)
+    }
+
+    if !mytime.Equal(time_) {
+        t.Errorf("Read/Set times are not equal:\n%v\n%v\n", mytime, time_)
+    }
+
+    // change a setting
+    if err = ga.Set("AlfredApp", "changed"); err != nil {
+        t.Errorf("Couldn't re-set a key.\n%v\n", err)
+    }
+    rs, err := ga.Get("AlfredApp")
+    if err != nil {
+        t.Errorf("Couldn't read 'AlfredApp' key from settings file.\n%v\n", err)
+    }
+    if rs != "changed" {
+        ferror(t, "changed", rs)
+    }
+}
+
 func TestAddItem(t *testing.T) {
     var ga *GoAlfred
     icon := NewIcon("pin.png", "icontype")
@@ -40,7 +103,7 @@ func TestAddItem(t *testing.T) {
             make_valid: false,
             expected: `<items>
   <item uid="uiduidadc" arg="deleteme" type="file" valid="yes" autocomplete="yes">
-    <tittle>TestBasic Title</tittle>
+    <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
     <icon type="icontype">pin.png</icon>
   </item>
@@ -50,12 +113,12 @@ func TestAddItem(t *testing.T) {
             make_valid: true,
             expected: `<items>
   <item uid="uiduidadc" arg="deleteme" type="file" valid="yes" autocomplete="yes">
-    <tittle>TestBasic Title</tittle>
+    <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
     <icon type="icontype">pin.png</icon>
   </item>
   <item uid="uiduidadc" arg="" type="file" valid="no" autocomplete="yes">
-    <tittle>TestBasic Title</tittle>
+    <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
     <icon type="icontype">pin.png</icon>
   </item>
@@ -65,17 +128,17 @@ func TestAddItem(t *testing.T) {
             make_valid: true,
             expected: `<items>
   <item uid="uiduidadc" arg="deleteme" type="file" valid="yes" autocomplete="yes">
-    <tittle>TestBasic Title</tittle>
+    <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
     <icon type="icontype">pin.png</icon>
   </item>
   <item uid="uiduidadc" arg="" type="file" valid="no" autocomplete="yes">
-    <tittle>TestBasic Title</tittle>
+    <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
     <icon type="icontype">pin.png</icon>
   </item>
   <item arg="" type="file" valid="no" autocomplete="yes">
-    <tittle>No Result Were Found.</tittle>
+    <title>No Result Were Found.</title>
     <subtitle>Adding stuff.</subtitle>
     <icon type="icontype">pin.png</icon>
   </item>
@@ -84,8 +147,8 @@ func TestAddItem(t *testing.T) {
     }
     for _, test := range tests {
         args := make([]string, 7)
-        for i := 0; i < 7; i++ {
-            args[i] = test.itemargs[i]
+        for i, a := range test.itemargs {
+            args[i] = a
         }
         ga.AddItem(args[0], args[1], args[2], args[3], args[4], args[5],
             args[6], icon, test.make_valid)
@@ -110,7 +173,7 @@ func TestMakeError(t *testing.T) {
     }
     expected := `<items>
   <item arg="" valid="no" autocomplete="no">
-    <tittle>Error in Generating Results.</tittle>
+    <title>Error in Generating Results.</title>
     <subtitle>Testing Forcing an error result.</subtitle>
     <icon>erroricon.png</icon>
   </item>
