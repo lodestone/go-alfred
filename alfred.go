@@ -4,11 +4,12 @@ import (
     "bytes"
     "encoding/xml"
     "fmt"
-    "howett.net/plist"
     "io/ioutil"
     "log"
     "os"
     "path"
+
+    "howett.net/plist"
 )
 
 var (
@@ -83,12 +84,12 @@ func (ga *GoAlfred) init(id string) {
         "Library/Application Support/Alfred 2/Workflow Data",
         ga.bundleID)
     if _, err = os.Stat(ga.CacheDir); err != nil {
-        if err = os.MkdirAll(ga.CacheDir, 0666); err != nil {
+        if err = os.MkdirAll(ga.CacheDir, 0755); err != nil {
             log.Fatalf("go-alfred: Can't create cache folder: %v\n", err)
         }
     }
     if _, err = os.Stat(ga.DataDir); err != nil {
-        if err = os.MkdirAll(ga.DataDir, 0666); err != nil {
+        if err = os.MkdirAll(ga.DataDir, 0755); err != nil {
             log.Fatalf("go-alfred: Can't create data folder: %v\n", err)
         }
     }
@@ -139,6 +140,7 @@ func (ga *GoAlfred) WriteToAlfred() (n int, err error) {
         }
     }
     n, err = os.Stdout.Write(output)
+    // fmt.Println(string(output))
     return n, err
 }
 
@@ -167,11 +169,13 @@ func (ga *GoAlfred) AddItem(uid, title, subtitle, valid, auto, rtype,
 }
 
 func (results *items) toXML() (output []byte, err error) {
-    output, err = xml.MarshalIndent(results, "", "  ")
+    output, err = xml.MarshalIndent(results, "", "")
     if err != nil {
         output = nil
     }
-    return output, err
+    s := string(output)
+    s = `<?xml version="1.0"?>` + s
+    return []byte(`<?xml version="1.0"?>` + string(output)), err
 }
 
 func (i *item) make_valid() {
