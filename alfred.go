@@ -169,7 +169,7 @@ func (ga *GoAlfred) AddItem(uid, title, subtitle, valid, auto, rtype,
 }
 
 func (results *items) toXML() (output []byte, err error) {
-    output, err = xml.MarshalIndent(results, "", "")
+    output, err = xml.MarshalIndent(results, "", "  ")
     if err != nil {
         output = nil
     }

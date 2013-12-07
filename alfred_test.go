@@ -11,7 +11,7 @@ func TestBasics(t *testing.T) {
         id       string
         expected string
     }{
-        {id: "TestBasic", expected: "<items></items>"},
+        {id: "TestBasic", expected: `<?xml version="1.0"?><items></items>`},
     }
     var ga *GoAlfred
     for _, test := range tests {
@@ -101,7 +101,7 @@ func TestAddItem(t *testing.T) {
     }{
         {itemargs: []string{"uiduidadc", "TestBasic Title", "Adding stuff.", "yes", "yes", "file", "deleteme"},
             make_valid: false,
-            expected: `<items>
+            expected: `<?xml version="1.0"?><items>
   <item uid="uiduidadc" arg="deleteme" type="file" valid="yes" autocomplete="yes">
     <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
@@ -111,7 +111,7 @@ func TestAddItem(t *testing.T) {
         },
         {itemargs: []string{"uiduidadc", "TestBasic Title", "Adding stuff.", "yes", "yes", "file", "deleteme"},
             make_valid: true,
-            expected: `<items>
+            expected: `<?xml version="1.0"?><items>
   <item uid="uiduidadc" arg="deleteme" type="file" valid="yes" autocomplete="yes">
     <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
@@ -126,7 +126,7 @@ func TestAddItem(t *testing.T) {
         },
         {itemargs: []string{"", "", "Adding stuff.", "yes", "yes", "file", "deleteme"},
             make_valid: true,
-            expected: `<items>
+            expected: `<?xml version="1.0"?><items>
   <item uid="uiduidadc" arg="deleteme" type="file" valid="yes" autocomplete="yes">
     <title>TestBasic Title</title>
     <subtitle>Adding stuff.</subtitle>
@@ -171,7 +171,7 @@ func TestMakeError(t *testing.T) {
     if err != nil {
         t.Fatalf("%s has faild with: %v", "TestMakeError", err)
     }
-    expected := `<items>
+    expected := `<?xml version="1.0"?><items>
   <item arg="" valid="no" autocomplete="no">
     <title>Error in Generating Results.</title>
     <subtitle>Testing Forcing an error result.</subtitle>
