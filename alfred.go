@@ -12,10 +12,12 @@ import (
     "howett.net/plist"
 )
 
-var (
+const (
     noResultString string = "No Result Were Found."
     errorTitle     string = "Error in Generating Results."
     settingsFN     string = "settings.plist"
+    volatileDir    string = "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data"
+    dataDir        string = "Library/Application Support/Alfred 2/Workflow Data"
 )
 
 type GoAlfred struct {
@@ -77,12 +79,8 @@ func (ga *GoAlfred) init(id string) {
     }
 
     ga.bundleID = ga.getBundleID(plistfn)
-    ga.CacheDir = path.Join(homedir,
-        "Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data",
-        ga.bundleID)
-    ga.DataDir = path.Join(homedir,
-        "Library/Application Support/Alfred 2/Workflow Data",
-        ga.bundleID)
+    ga.CacheDir = path.Join(homedir, volatileDir, ga.bundleID)
+    ga.DataDir = path.Join(homedir, dataDir, ga.bundleID)
     if _, err = os.Stat(ga.CacheDir); err != nil {
         if err = os.MkdirAll(ga.CacheDir, 0755); err != nil {
             log.Fatalf("go-alfred: Can't create cache folder: %v\n", err)
