@@ -9,7 +9,7 @@ import (
     "os"
     "path"
 
-    "howett.net/plist"
+    "github.com/DHowett/go-plist"
 )
 
 var (

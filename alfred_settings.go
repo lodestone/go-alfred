@@ -4,7 +4,7 @@ import (
     // "errors"
     "bytes"
     "fmt"
-    "howett.net/plist"
+    "github.com/DHowett/go-plist"
     "io/ioutil"
     "os"
     "strings"
